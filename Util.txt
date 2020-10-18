@@ -1,0 +1,61 @@
+User: karel@test.com/Qwerty.1986
+
+Install Swagger:
+	-nuget: Swashbuckle.aspnetcore
+
+
+Migrations:
+	"Add migration"		=> dotnet ef migrations add "Migration_name"
+	"Add migration"		=> Add-Migration "AddedPosts"
+	"Execute migration" => Update-Database
+	"Execute migration" => dotnet ef database update
+
+
+
+IntegrationsTests:
+-Add packages from Nuget:
+	Microsoft.AspNetCore.Mvc.Testing
+	Microsoft.AspNetCore.App
+
+
+Automapper:
+-Add package from nuget:
+	AutoMapper
+	AutoMapper.Extensions>microsoft.DependencyInjection
+	-Add in Startup
+
+
+Fluent Validations:
+-Add package from nuget:
+	FluentValidation.AspNetCore
+
+
+For creating Sdk project:
+-Create Class Library Project
+
+Improve Swagger Doc:
+-Add package from nuget:
+	Swashbuckle.AspNetCore.Filters
+
+Docker:
+-Create Dockerfile
+
+docker-compose build
+docker-compose up
+docker-compose down
+
+
+Local dev:
+"ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=Tweetbook;Trusted_Connection=True;MultipleActiveResultSets=true"
+  }
+
+Docker config:
+"ConnectionStrings": {
+    "DefaultConnection": "Server=db-server;Database=Tweetbook;User=sa;Password=Karel1234"
+  }
+
+
+
+---------------------------
+Migration from 2.2 -> 3.0

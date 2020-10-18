@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+
+namespace Tweetbook.Authorization
+{
+    public class WorksForCompanyHandler : AuthorizationHandler<WorkForCompanyRequirement>
+    {
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+            WorkForCompanyRequirement requirement)
+        {
+            var userEmailAddress =
+                context.User?.FindFirstValue(ClaimTypes.Email) ??
+                string.Empty; // Find in claims that comes in jwt token
+            if (userEmailAddress.EndsWith(requirement.DomainName))
+            {
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
+
+            context.Fail();
+            return Task.CompletedTask;
+        }
+    }
+}
