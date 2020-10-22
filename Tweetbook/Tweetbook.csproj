@@ -5,6 +5,8 @@
     <UserSecretsId>aspnet-Tweetbook-4505EFD0-83AB-49CE-B648-0374FC228C51</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+	<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
     <PropertyGroup>
@@ -27,10 +29,17 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="3.0.0" />
     
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
     
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tweetbook.Contract\Tweetbook.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

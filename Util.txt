@@ -32,6 +32,18 @@ Fluent Validations:
 
 For creating Sdk project:
 -Create Class Library Project
+-Install from Nuget:
+	Refit
+
+
+Response caching using Redis:
+-Install from nuget:
+	Microsoft.Extensions.Caching.StackExchangeRedis
+
+Health Checks:
+-Add services in the Startup
+-Add package from nuget for EF: Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore
+								
 
 Improve Swagger Doc:
 -Add package from nuget:

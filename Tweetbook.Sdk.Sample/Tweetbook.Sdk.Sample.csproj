@@ -5,4 +5,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Refit" Version="4.7.51" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tweetbook.Sdk\Tweetbook.Sdk.csproj" />
+  </ItemGroup>
+
 </Project>

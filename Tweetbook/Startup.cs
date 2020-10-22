@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,9 @@ using Tweetbook.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
+using Tweetbook.Contracts.HealthChecks;
 using Tweetbook.IOC;
 using SwaggerOptions = Tweetbook.Options.SwaggerOptions;
 
@@ -51,6 +54,28 @@ namespace Tweetbook
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseHealthChecks("/health", new HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    context.Response.ContentType = "application/json";
+
+                    var response = new HealthCheckResponse
+                    {
+                        Status = report.Status.ToString(),
+                        Checks = report.Entries.Select(x => new HealthCheck
+                        {
+                            Component = x.Key,
+                            Status = x.Value.Status.ToString(),
+                            Description = x.Value.Description
+                        }),
+                        Duration = report.TotalDuration
+                    };
+
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+                }
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

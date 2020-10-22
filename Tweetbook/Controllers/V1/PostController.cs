@@ -8,9 +8,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contracts.V1;
 using Tweetbook.Contracts.V1.Requests;
+using Tweetbook.Contracts.V1.Requests.Queries;
 using Tweetbook.Contracts.V1.Responses;
+using Tweetbook.Data.Migrations;
 using Tweetbook.Domain;
 using Tweetbook.Extensions;
+using Tweetbook.Filters;
+using Tweetbook.Helpers;
 using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1
@@ -19,19 +23,25 @@ namespace Tweetbook.Controllers.V1
     public class PostController : Controller
     {
         private readonly IPostService _postService;
+        private readonly IUriService _uriService;
 
         private readonly IMapper _mapper;
 
-        public PostController(IPostService postService, IMapper mapper)
+        public PostController(IPostService postService, IMapper mapper, IUriService uriService)
         {
             _postService = postService;
             _mapper = mapper;
+            _uriService = uriService;
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll()
+        [Cached(600)]
+        public async Task<IActionResult> GetAll([FromQuery] GetAllPostQuery query, [FromQuery] PaginationQuery paginationQuery)
         {
-            var posts = await _postService.GetPostsAsync();
+
+            var pagination = _mapper.Map<PaginationFilter>(paginationQuery);
+            var filter = _mapper.Map<GetAllPostFilter>(query);
+            var posts = await _postService.GetPostsAsync(filter, pagination);
 
             /* Commented due AutoMapper use
              var postResponse = posts.Select(p => new PostResponse
@@ -42,24 +52,20 @@ namespace Tweetbook.Controllers.V1
                 Tags = p.Tags.Select(t => new TagResponse {Name = t.TagName})
             }).ToList();*/
 
-            return Ok(_mapper.Map<List<PostResponse>>(posts));
+            var postResponse = _mapper.Map<List<PostResponse>>(posts);
+            var paginationResponse = PaginationHelper.CreatePaginatedResponse(_uriService, pagination, postResponse);
+            return Ok(paginationResponse);
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);
 
             if (post == null) return NotFound();
 
-            return Ok(_mapper.Map<PostResponse>(post));
-            /*return Ok(new PostResponse
-            {
-                Name = post.Name,
-                Id = post.Id,
-                UserId = post.UserId,
-                Tags = post.Tags.Select(t => new TagResponse {Name = t.TagName}).ToList()
-            });*/
+            return Ok(new Response<PostResponse>(_mapper.Map<PostResponse>(post)));
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
@@ -75,17 +81,11 @@ namespace Tweetbook.Controllers.V1
             };
             await _postService.CreatePostAsync(postModel);
 
-            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-            var location = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", postModel.Id.ToString());
-            /*var response = new PostResponse
-            {
-                Id = postModel.Id,
-                Name = postModel.Name,
-                UserId = postModel.UserId,
-                Tags = postModel.Tags.Select(t => new TagResponse {Name = t.TagName})
-            };*/
+            // var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+            // var location = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", postModel.Id.ToString());
+            var locationUri = _uriService.GetPostUri(postModel.Id.ToString());
 
-            return Created(location, _mapper.Map<PostResponse>(postModel));
+            return Created(locationUri, new Response<PostResponse>(_mapper.Map<PostResponse>(postModel)));
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -100,7 +100,7 @@ namespace Tweetbook.Controllers.V1
             var updated = await _postService.UpdatePostAsync(post);
 
             if (updated)
-                return Ok(_mapper.Map<PostResponse>(post));
+                return Ok(new Response<PostResponse>(_mapper.Map<PostResponse>(post)));
             /*return Ok(new PostResponse
             {
                 Name = post.Name,
