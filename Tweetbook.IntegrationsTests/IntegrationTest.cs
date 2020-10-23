@@ -44,7 +44,7 @@ namespace Tweetbook.IntegrationsTests
         {
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Posts.Create, request);
 
-            return await response.Content.ReadAsAsync<PostResponse>();
+            return (await response.Content.ReadAsAsync<Response<PostResponse>>()).Data;
         }
 
         private async Task<string> GetJwtAsync()

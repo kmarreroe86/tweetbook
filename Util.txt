@@ -43,6 +43,11 @@ Response caching using Redis:
 Health Checks:
 -Add services in the Startup
 -Add package from nuget for EF: Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore
+
+
+Continuous Integration(Github Actions):
+-Select wokflow: ASP.NET Core
+-
 								
 
 Improve Swagger Doc:
